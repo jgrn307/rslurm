@@ -67,6 +67,13 @@
 #'   \code{sbatch}; see Details below for more information.
 #' @param rscript_path Path to Rscript -- defaults to the bin directory of the current R
 #' @param submit_sh_fname Path to the submit_sh.txt template.  Defaults to the templates directory.  
+#' @param scheduling_mode Can be "rslurm_original" or "full_slurm".  If "full_slurm", the SLURM 
+#' 		scheduler takes control of the array scheduling.  If functions require > 1 cpu to run,
+#' 		users should set cpus_per_task as well.
+#' @param cpus_per_task If "full_slurm" is set, each individual job (one row of the params file)
+#' 		will have access to this number of cpus.  If the user function has no inherent parallelization, 
+#' 		this should be left = 1.
+#' @param job_folder The folder the jobs will be created inside.  Will default to the user's home directory/rslurm.
 #' @return A \code{slurm_job} object containing the \code{jobname} and the
 #'   number of \code{nodes} effectively used.
 #' @seealso \code{\link{slurm_call}} to evaluate a single function call.
@@ -86,7 +93,11 @@ slurm_apply <- function(f, params, jobname = NA, nodes = 2, cpus_per_node = 2,
 		libPaths = NULL, slurm_options = list(), submit = TRUE,
 		rscript_path = file.path(R.home("bin"), "Rscript"),
 		submit_sh_fname=system.file("templates/submit_sh.txt",
-				package = "rslurm")) {
+				package = "rslurm"),
+		scheduling_mode="rslurm_original",
+		cpus_per_task=1,
+		job_folder=file.path(path.expand("~"),"rslurm"))
+	{
 	# Check inputs
 	if (!is.function(f)) {
 		stop("first argument to slurm_apply should be a function")
@@ -104,10 +115,18 @@ slurm_apply <- function(f, params, jobname = NA, nodes = 2, cpus_per_node = 2,
 		stop("cpus_per_node should be a single number")
 	}
 	
+	if(scheduling_mode=="full_slurm")
+	{
+		slurm_options <- c(slurm_options,list(ntasks=1,'cpus-per-task'=cpus_per_task))
+		rscript_path <- paste("srun --exclusive",rscript_path)
+		cpus_per_node <- 1 # Slurm will take care of figuring out the CPUs.
+		nodes <- 1 # Slurm will take care of figuring out how to distribute across nodes.
+	}
+	
 	jobname <- make_jobname(jobname)
 	
 	# Create temp folder
-	tmpdir <- paste0("_rslurm_", jobname)
+	tmpdir <- file.path(job_folder,paste0("_rslurm_", jobname))
 	dir.create(tmpdir, showWarnings = FALSE)
 	
 	saveRDS(params, file = file.path(tmpdir, "params.RDS"))
