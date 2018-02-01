@@ -40,9 +40,9 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE, verbose=F) {
 		tmpdir <- file.path(job_folder,paste0("_rslurm_", slr_job$jobname))
 	}
 	
-	if(verbose) message(paste0("slr_job_file:",slr_job_file))
-	if(verbose) message(paste0("job_folder:",job_folder))
-	if(verbose) message(paste0("tmpdir:",tmpdir))
+#	if(verbose) message(paste0("slr_job_file:",slr_job_file))
+#	if(verbose) message(paste0("job_folder:",job_folder))
+#	if(verbose) message(paste0("tmpdir:",tmpdir))
 
     # Check arguments
     if (!(class(slr_job) == "slurm_job")) {
@@ -59,16 +59,18 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE, verbose=F) {
     }
     
     res_files <- file.path(job_folder,paste0("results_", 0:(slr_job$nodes - 1), ".RDS"))
-	if(verbose) message(paste0("res_files:",res_files))
-	if(verbose) message(paste0("dir(path = tmpdir):",dir(path = tmpdir)))
+#	if(verbose) message(paste0("res_files:",res_files))
+#	if(verbose) message(paste0("dir(path = tmpdir):",dir(path = tmpdir)))
 	
-	browser()
-    missing_files <- setdiff(res_files, dir(path = tmpdir))
+	# browser()
+    # missing_files <- setdiff(res_files, dir(path = tmpdir))
+	missing_files <- res_files[!sapply(res_files,file.exists)]
+	
     if (length(missing_files) > 0) {
         missing_list <- paste(missing_files, collapse = ", ")
         warning(paste("The following files are missing:", missing_list))
     }
-    res_files <- file.path(job_folder, tmpdir, setdiff(res_files, missing_files))
+    res_files <- res_files[sapply(res_files,file.exists)]
     if (length(res_files) == 0) return(NA)
     
     slurm_out <- lapply(res_files, readRDS)
