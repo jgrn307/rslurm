@@ -11,7 +11,7 @@
 #' \code{slurm_apply}. Jobs sent with \code{slurm_call} only return a single
 #' object, and setting \code{outtype = "table"} creates an error in that case.
 #' 
-#' @param slr_job A \code{slurm_job} object.
+#' @param slr_job A \code{slurm_job} object or the path to the slurm job folder.
 #' @param outtype Can be "table" or "raw", see "Value" below for details.
 #' @param wait Specify whether to block until \code{slr_job} completes.
 #' @return If \code{outtype = "table"}: A data frame with one column by 
@@ -28,8 +28,14 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE) {
  
 	if(class(slr_job)=="character")
 	{
+		# slr_job_file <- file.path(slr_job,"slurm_job.Rdata")
+		job_folder <- slr_job
 		slr_job_file <- file.path(slr_job,"slurm_job.Rdata")
+#		print(slr_job_file)
 		if(file.exists(slr_job_file)) load(slr_job_file) else stop("slr_job must be a path to the slurm job directory...")
+	} else
+	{
+		job_folder <- getwd()
 	}
 	
     # Check arguments
@@ -46,14 +52,14 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE) {
         wait_for_job(slr_job)
     }
     
-    res_files <- paste0("results_", 0:(slr_job$nodes - 1), ".RDS")
-    tmpdir <- paste0("_rslurm_", slr_job$jobname)
+    res_files <- file.path(job_folder,paste0("results_", 0:(slr_job$nodes - 1), ".RDS"))
+    tmpdir <- file.path(job_folder,paste0("_rslurm_", slr_job$jobname))
     missing_files <- setdiff(res_files, dir(path = tmpdir))
     if (length(missing_files) > 0) {
         missing_list <- paste(missing_files, collapse = ", ")
         warning(paste("The following files are missing:", missing_list))
     }
-    res_files <- file.path(tmpdir, setdiff(res_files, missing_files))
+    res_files <- file.path(job_folder, tmpdir, setdiff(res_files, missing_files))
     if (length(res_files) == 0) return(NA)
     
     slurm_out <- lapply(res_files, readRDS)

@@ -73,7 +73,7 @@
 #' @param cpus_per_task If "full_slurm" is set, each individual job (one row of the params file)
 #' 		will have access to this number of cpus.  If the user function has no inherent parallelization, 
 #' 		this should be left = 1.
-#' @param job_folder The folder the jobs will be created inside.  Will default to the user's home directory/rslurm.
+#' @param job_folder The path to where all the user's rslurm job folders are stored.  Default is "~/rslurm".
 #' @return A \code{slurm_job} object containing the \code{jobname} and the
 #'   number of \code{nodes} effectively used.
 #' @seealso \code{\link{slurm_call}} to evaluate a single function call.
