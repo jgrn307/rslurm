@@ -24,7 +24,7 @@
 #'   row in the params data frame passed to \code{slurm_apply}.
 #' @seealso \code{\link{slurm_apply}}, \code{\link{slurm_call}}
 #' @export
-get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE) {
+get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE, verbose=F) {
  
 	if(class(slr_job)=="character")
 	{
@@ -40,6 +40,10 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE) {
 		tmpdir <- file.path(job_folder,paste0("_rslurm_", slr_job$jobname))
 	}
 	
+	if(verbose) message(paste0("slr_job_file:",slr_job_file))
+	if(verbose) message(paste0("job_folder:",job_folder))
+	if(verbose) message(paste0("tmpdir:",tmpdir))
+
     # Check arguments
     if (!(class(slr_job) == "slurm_job")) {
         stop("slr_job must be a slurm_job")
