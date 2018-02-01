@@ -120,7 +120,7 @@ slurm_apply <- function(f, params, jobname = NA, nodes = 2, cpus_per_node = 2,
 		slurm_options <- c(slurm_options,list(ntasks=1,'cpus-per-task'=cpus_per_task))
 		rscript_path <- paste("srun --exclusive",rscript_path)
 		cpus_per_node <- 1 # Slurm will take care of figuring out the CPUs.
-		nodes <- 1 # Slurm will take care of figuring out how to distribute across nodes.
+		# nodes <- 1 # Slurm will take care of figuring out how to distribute across nodes.
 	}
 	
 	jobname <- make_jobname(jobname)
