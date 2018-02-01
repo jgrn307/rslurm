@@ -28,11 +28,9 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE) {
  
 	if(class(slr_job)=="character")
 	{
-		# slr_job_file <- file.path(slr_job,"slurm_job.Rdata")
 		job_folder <- slr_job
 		slr_job_file <- file.path(slr_job,"slurm_job.Rdata")
 		tmpdir <- slr_job
-#		print(slr_job_file)
 		if(file.exists(slr_job_file)) load(slr_job_file) else stop("slr_job must be a path to the slurm job directory...")
 	} else
 	{
