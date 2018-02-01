@@ -31,11 +31,13 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE) {
 		# slr_job_file <- file.path(slr_job,"slurm_job.Rdata")
 		job_folder <- slr_job
 		slr_job_file <- file.path(slr_job,"slurm_job.Rdata")
+		tmpdir <- slr_job
 #		print(slr_job_file)
 		if(file.exists(slr_job_file)) load(slr_job_file) else stop("slr_job must be a path to the slurm job directory...")
 	} else
 	{
 		job_folder <- getwd()
+		tmpdir <- file.path(job_folder,paste0("_rslurm_", slr_job$jobname))
 	}
 	
     # Check arguments
@@ -53,7 +55,6 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE) {
     }
     
     res_files <- file.path(job_folder,paste0("results_", 0:(slr_job$nodes - 1), ".RDS"))
-    tmpdir <- file.path(job_folder,paste0("_rslurm_", slr_job$jobname))
     missing_files <- setdiff(res_files, dir(path = tmpdir))
     if (length(missing_files) > 0) {
         missing_list <- paste(missing_files, collapse = ", ")
