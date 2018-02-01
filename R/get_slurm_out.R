@@ -62,7 +62,7 @@ get_slurm_out <- function(slr_job, outtype = "raw", wait = TRUE, verbose=F) {
 	if(verbose) message(paste0("res_files:",res_files))
 	if(verbose) message(paste0("dir(path = tmpdir):",dir(path = tmpdir)))
 	
-	
+	browser()
     missing_files <- setdiff(res_files, dir(path = tmpdir))
     if (length(missing_files) > 0) {
         missing_list <- paste(missing_files, collapse = ", ")
